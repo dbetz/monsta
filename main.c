@@ -7,16 +7,13 @@
 
 static int GetKey(void);
 
-static uint32_t ticksPerTenthSecond;
+static uint32_t ;
 
 int main(void)
 {
-    MAZE maze;
+    uint32_t ticksPerTenthSecond, lastTick, now;
     uint8_t board[WIDTH * (HEIGHT - 1)];
-    uint32_t lastTick, now;
-    
-    ticksPerTenthSecond = CLKFREQ / 10;
-    lastTick = CNT;
+    MAZE maze;
     
     if (quadkeyboardStart() < 0) {
         printf("quadkeyboardStart failed\n");
@@ -31,7 +28,10 @@ int main(void)
     InitMaze(&maze, WIDTH, HEIGHT - 1, board, WIDTH);
 	UpdateMaze(&maze);
 	
+    ticksPerTenthSecond = CLKFREQ / 10;
+    lastTick = CNT;
 	now = 0;
+	
 	while (1) {
 	    int key;
 	
