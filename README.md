@@ -1,5 +1,5 @@
 # monsta
-This is a simple game for the Parallax Propeller based WordFire/Quby game console.
+This is a simple game for the Parallax Propeller-based WordFire/Quby game console.
 
 This is a maze game with a randomly generated maze. The interior walls of the maze are initially hidden but you discover them by moving around with the arrow keys. When you try to move in the direction where there is a wall, you bump into the wall and the wall becomes visible. There is a goal location that you are trying to reach and there is a monster who is trying to eat you. You have to reach the goal before the monster eats you to win the game. You can pick up various objects along the way. A club will allow you to beat the monster away once and a bomb will let you set a trap for the monster and will also blast away some of the maze walls maybe making it easier for you to reach the goal.
 
