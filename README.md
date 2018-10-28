@@ -8,10 +8,11 @@ The maze is represented with the following ASCII characters:
 - X is a wall
 - P is the player
 - M is the monster
-- ! is a club
-- b is an inactive bomb
-- B is an active bomb
+- ! is a club that you can pick up
+- b is an inactive bomb that you can pick up
+- B is an active bomb that you have dropped
 - ? is a randomizer
+- . is a player footprint
 
 The following keys control the game:
 
