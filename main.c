@@ -7,8 +7,6 @@
 
 static int GetKey(void);
 
-static uint32_t ;
-
 int main(void)
 {
     uint32_t ticksPerTenthSecond, lastTick, now;
