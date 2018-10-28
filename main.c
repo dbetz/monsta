@@ -14,7 +14,6 @@ int main(void)
     MAZE maze;
     uint8_t board[WIDTH * (HEIGHT - 1)];
     uint32_t lastTick, now;
-    int ch, i;
     
     ticksPerTenthSecond = CLKFREQ / 10;
     lastTick = CNT;
@@ -48,19 +47,6 @@ int main(void)
 		UpdateMaze(&maze);
     }
 	
-    printf("Start typing...\n");
-    while (1) {
-        for (i = 0; i < 4; ++i) {
-            if ((ch = getKey(i)) != 0) {
-                printf("%d: %02x '%c'\n", i, ch, ch);
-            }
-        }
-    }
-
-    printf("Done\n");
-    while (1)
-        ;
-    
     return 0;
 }
 
