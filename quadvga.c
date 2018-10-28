@@ -109,6 +109,15 @@ void quadvgaTX(int i, int ch)
     }
 }
 
+// quadvgaClearLine - clear a line
+void quadvgaClearLine(int i, int y)
+{
+    screen *s = screens[i];
+    int lineStart = (YSTART + y) * COLUMNS;
+    memset((void *)&s->indx[lineStart], BW, COLUMNS);
+    memset((void *)&s->scrn[lineStart], ' ', COLUMNS);
+}
+
 // quadvgaPoke - poke a character directly into the buffer
 void quadvgaPoke(int i, int x, int y, int ch)
 {

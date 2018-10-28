@@ -18,6 +18,7 @@ int getKey(int kbn);
 int quadvgaStart(void);
 void quadvgaClear(int i);
 void quadvgaTX(int i, int ch);
+void quadvgaClearLine(int i, int y);
 void quadvgaPoke(int i, int x, int y, int ch);
 void quadvgaStr(int i, const char *str);
 void quadvgaCRLF(int i);

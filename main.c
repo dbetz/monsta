@@ -13,7 +13,7 @@ int main(void)
 {
     MAZE maze;
     uint8_t board[WIDTH * (HEIGHT - 1)];
-    uint32_t lastTick;
+    uint32_t lastTick, now;
     int ch, i;
     
     ticksPerTenthSecond = CLKFREQ / 10;
@@ -32,12 +32,14 @@ int main(void)
     InitMaze(&maze, WIDTH, HEIGHT - 1, board, WIDTH);
 	UpdateMaze(&maze);
 	
+	now = 0;
 	while (1) {
 	    int key;
 	
 	    if (CNT - lastTick >= ticksPerTenthSecond) {
 	        lastTick = CNT;
-	        GameIdle(&maze, lastTick);
+	        GameIdle(&maze, now);
+	        ++now;
 	    }
 	    
 		if ((key = GetKey()) != NONE)
@@ -177,6 +179,7 @@ void ShowMessage(char *fmt, ...)
     va_list ap;
     va_start(ap, fmt);
     vsprintf(buf, fmt, ap);
+    quadvgaClearLine(0, HEIGHT - 1);
     quadvgaSetXY(0, 0, HEIGHT - 1);
     quadvgaStr(0, buf);
 }

@@ -13,8 +13,11 @@ quadvga.o \
 quadvga_fw.o \
 monsta.o
 
-all:	monsta.elf
+all:	monsta.binary
 
+monsta.binary:	monsta.elf
+	propeller-load -s $<
+    
 monsta.elf:	$(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS)
 
@@ -27,8 +30,8 @@ monsta.elf:	$(OBJS)
 %_fw.o: %.dat
 	$(OBJCOPY) -I binary -B propeller -O $(CC) $< $@
 	
-run:	test.elf
+run:	monsta.binary
 	proploader -s $< -t
 	
 clean:
-	$(RM) *.o *.elf *.dat
+	$(RM) *.o *.dat *.elf *.binary
