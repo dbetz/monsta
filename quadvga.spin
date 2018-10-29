@@ -230,9 +230,45 @@ user            long    $8000                   ' default to ROM font
 drei            long    0                       ' no fetch on startup
 dst1            long    1 << 9                  ' dst +/-= 1
 
-ntry            long    (dcolour >>  8)[16]     ' foreground
-                long    (dcolour & $FF)[16]     ' background
+'ntry            long    (dcolour >>  8)[16]     ' foreground
+'                long    (dcolour & $FF)[16]     ' background
                 
+ntry            long    $00000000                'added by JRG
+                long    $00000004
+                long    $00000008
+                long    $00000040
+                long    $0000000C
+                long    $00000044
+                long    $00000048
+                long    $0000004C
+
+                long    $00000000
+                long    $00000004
+                long    $00000008
+                long    $00000040
+                long    $0000000C
+                long    $00000044
+                long    $00000048
+                long    $0000004C
+                
+                long    $00000000
+                long    $00000004
+                long    $00000008
+                long    $00000040
+                long    $0000000C
+                long    $00000044
+                long    $00000048
+                long    $0000004C
+
+                long    $00000000
+                long    $00000004
+                long    $00000008
+                long    $00000040
+                long    $0000000C
+                long    $00000044
+                long    $00000048
+                long    $0000004C                                                                                                                                      
+
 ' Stuff below is re-purposed for temporary storage.
 
 setup           rdlong  cnt, #0                 ' clkfreq

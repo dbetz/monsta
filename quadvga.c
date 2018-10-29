@@ -16,10 +16,21 @@
 #define YSTART      1
 #define YEND        (ROWS - 2)
 
-#define BW          0x37
+#define BLACK       0
+#define RED         1
+#define GREEN       2
+#define BLUE        3
+#define YELLOW      4
+#define AQUA        5
+#define PURPLE      6
+#define WHITE       7
+
+#define ColorPair(bg, fg)   (((bg) << 4) | (fg))
+
+#define BW          ColorPair(BLACK, WHITE)
 
 typedef struct {
-    int32_t screen;
+    uint32_t screen;
     uint32_t palUser;
     uint32_t colour;
     uint32_t config;
@@ -49,8 +60,8 @@ static screen *screens[] = {
 static uint32_t vconfig[] = {
     (0 << 9) | 0x4f,    // with sync %010011_11  
     (1 << 9) | 0x4c,    //   no sync %010011_00      
-    (2 << 9) | 0x4c,   
-    (3 << 9) | 0x4c
+    (2 << 9) | 0x4c,    //   no sync %010011_00
+    (3 << 9) | 0x4c     //   no sync %010011_00
 };
         
 // quadvgaStart - start the quad VGA drivers

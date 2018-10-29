@@ -5,6 +5,9 @@
 #include "monsta.h"
 #include "wordfire.h"
 
+#define VOL_PIN 20
+#define SND_PIN 21
+
 static int GetKey(void);
 
 int main(void)
@@ -12,6 +15,11 @@ int main(void)
     uint32_t ticksPerTenthSecond, lastTick, now;
     uint8_t board[WIDTH * (HEIGHT - 1)];
     MAZE maze;
+    
+    DIRA |= 1 << VOL_PIN;
+    DIRA |= 1 << SND_PIN;
+
+    printf("Starting...\n");
     
     if (quadkeyboardStart() < 0) {
         printf("quadkeyboardStart failed\n");
@@ -122,7 +130,7 @@ void ShowPiece(MAZE *maze, int x, int y)
         piece = 'M';
         break;
     case WALL:              /* wall */
-        piece = 'X';
+        piece = 'O';
         break;
     case RANDOMIZER:        /* a randomizer */
         piece = '?';
