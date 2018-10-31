@@ -16,18 +16,7 @@
 #define YSTART      1
 #define YEND        (ROWS - 2)
 
-#define BLACK       0
-#define RED         1
-#define GREEN       2
-#define BLUE        3
-#define YELLOW      4
-#define AQUA        5
-#define PURPLE      6
-#define WHITE       7
-
-#define ColorPair(bg, fg)   (((bg) << 4) | (fg))
-
-#define BW          ColorPair(BLACK, WHITE)
+#define FG          ColorPair(BLUE, WHITE)
 
 typedef struct {
     uint32_t screen;
@@ -71,18 +60,22 @@ int quadvgaStart(void)
     uint32_t lock;
     int i;
     
-    lock = (((CNT >> 16) + 2) | 1) << 16;
     for (i = 0; i < 4; ++i) {
         screen *s = screens[i];
-        quadvgaClear(i);
         s->mbox.screen = (uint32_t)s->scrn;
         s->mbox.palUser = 0;
         s->mbox.colour = (uint32_t)s->indx;
+        quadvgaClear(i);
+    }
+
+    // don't put any additional code into this loop
+    // the time between calls to cognew must be very short
+    lock = (((CNT >> 16) + 2) | 1) << 16;
+    for (i = 0; i < 4; ++i) {
+        screen *s = screens[i];
         s->mbox.config = lock | vconfig[i];
         if ((s->cog = cognew(binary_quadvga_dat_start, &s->mbox)) < 0)
             return -1;
-        s->x = XSTART;
-        s->y = YSTART;
     }
     
     return 0;
@@ -92,7 +85,7 @@ int quadvgaStart(void)
 void quadvgaClear(int i)
 {
     screen *s = screens[i];
-    memset((void *)s->indx, BW, BCNT_RAW);
+    memset((void *)s->indx, FG, BCNT_RAW);
     memset((void *)s->scrn, ' ', BCNT_RAW);
     s->x = XSTART;
     s->y = YSTART;
@@ -111,7 +104,7 @@ void quadvgaTX(int i, int ch)
     }
     else {
         int j = s->y * COLUMNS + s->x;
-        s->indx[j] = BW;
+        s->indx[j] = FG;
         s->scrn[j] = ch;
         if (++s->x > XEND) {                                    
             s->x = XSTART;
@@ -125,7 +118,7 @@ void quadvgaClearLine(int i, int y)
 {
     screen *s = screens[i];
     int lineStart = (YSTART + y) * COLUMNS;
-    memset((void *)&s->indx[lineStart], BW, COLUMNS);
+    memset((void *)&s->indx[lineStart], FG, COLUMNS);
     memset((void *)&s->scrn[lineStart], ' ', COLUMNS);
 }
 
@@ -134,7 +127,7 @@ void quadvgaPoke(int i, int x, int y, int ch)
 {
     screen *s = screens[i];
     int j = (YSTART + y) * COLUMNS + XSTART + x;
-    s->indx[j] = BW;
+    s->indx[j] = FG;
     s->scrn[j] = ch;
 }
 
@@ -154,7 +147,7 @@ void quadvgaCRLF(int i)
         s->y = YEND;
     memcpy((void *)&s->indx[COLUMNS], (void *)&s->indx[COLUMNS * 2], BCNT_RAW - COLUMNS * 2);
     memcpy((void *)&s->scrn[COLUMNS], (void *)&s->scrn[COLUMNS * 2], BCNT_RAW - COLUMNS * 2);
-    memset((void *)&s->indx[(ROWS - 1) * COLUMNS], BW, COLUMNS);
+    memset((void *)&s->indx[(ROWS - 1) * COLUMNS], FG, COLUMNS);
     memset((void *)&s->scrn[(ROWS - 1) * COLUMNS], ' ', COLUMNS);
 }
 

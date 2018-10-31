@@ -8,7 +8,9 @@
 #define VOL_PIN 20
 #define SND_PIN 21
 
-static int GetKey(void);
+#define SCREEN  0
+
+static int GetKey(int screen);
 
 int main(void)
 {
@@ -47,7 +49,7 @@ int main(void)
 	        ++now;
 	    }
 	    
-		if ((key = GetKey()) != NONE)
+		if ((key = GetKey(SCREEN)) != NONE)
 			HandleInput(&maze, key);
 
 		UpdateMaze(&maze);
@@ -61,10 +63,10 @@ int main(void)
 #define KEY_UP		0xe8
 #define KEY_DOWN	0xe2
 
-static int GetKey(void)
+static int GetKey(int screen)
 {
     int key = NONE;
-    switch (getKey(0)) {
+    switch (getKey(screen)) {
     case KEY_LEFT:
         key = W;
         break;
@@ -162,7 +164,7 @@ void ShowPiece(MAZE *maze, int x, int y)
         piece = '@';
         break;
     }
-    quadvgaPoke(0, x, y, piece);
+    quadvgaPoke(SCREEN, x, y, piece);
 }
 
 void ShowMessage(char *fmt, ...)
@@ -171,9 +173,9 @@ void ShowMessage(char *fmt, ...)
     va_list ap;
     va_start(ap, fmt);
     vsprintf(buf, fmt, ap);
-    quadvgaClearLine(0, HEIGHT - 1);
-    quadvgaSetXY(0, 0, HEIGHT - 1);
-    quadvgaStr(0, buf);
+    quadvgaClearLine(SCREEN, HEIGHT - 1);
+    quadvgaSetXY(SCREEN, 0, HEIGHT - 1);
+    quadvgaStr(SCREEN, buf);
 }
 
 void ShowStatus(MAZE *maze)

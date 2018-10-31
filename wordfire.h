@@ -10,6 +10,17 @@
 #define WIDTH       (COLUMNS - 2)
 #define HEIGHT      (ROWS - 2)
 
+#define BLACK       0
+#define RED         1
+#define GREEN       2
+#define BLUE        3
+#define YELLOW      4
+#define AQUA        5
+#define PURPLE      6
+#define WHITE       7
+
+#define ColorPair(fg, bg)   (((bg) << 4) | (fg))
+
 int quadkeyboardStart(void);
 int hasKey(int kbn);
 void clearKeyBuffer(int kbn);
