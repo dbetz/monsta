@@ -1,8 +1,9 @@
 ''
 '' VGA display 40x15 (single cog, ROM font, palette) - video driver and pixel generator
 ''
-''        Author: Marko Lukat
+''        Author: Marko Lukat (kuroneko on the Parallax forums)
 ''   Modified by: David Betz (merged in init function from core.con.system.spin)
+''    Palette by: Jim Goodpaster, creator of the WordFire/Quby Game Console
 '' Last modified: 2017/12/05
 ''       Version: 0.6.pal.13
 ''

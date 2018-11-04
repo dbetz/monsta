@@ -27,6 +27,8 @@ void clearKeyBuffer(int kbn);
 int getKey(int kbn);
 
 int quadvgaStart(void);
+void quadvgaSetPalette(int i, uint32_t *palette);
+void quadvgaSetUserGlyphs(int i, uint8_t *glyphs);
 void quadvgaClear(int i);
 void quadvgaTX(int i, int ch);
 void quadvgaClearLine(int i, int y);

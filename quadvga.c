@@ -28,7 +28,7 @@ typedef struct {
 typedef struct {
     volatile uint8_t scrn[BCNT_RAW];    // screen buffer (2n aligned)
     volatile uint8_t indx[BCNT_RAW];    // colour buffer (2n aligned)
-    vgamailbox mbox;
+    volatile vgamailbox mbox;
     uint32_t cog;
     int x;
     int y;
@@ -79,6 +79,24 @@ int quadvgaStart(void)
     }
     
     return 0;
+}
+
+// quadvgaSetPalette - set the palette for a screen
+void quadvgaSetPalette(int i, uint32_t *palette)
+{
+    screen *s = screens[i];
+    s->mbox.palUser = (uint32_t)palette;
+    while (s->mbox.palUser)
+        ;
+}
+
+// quadvgaSetUserGlyphs - set the user glyph table for a screen
+void quadvgaSetUserGlyphs(int i, uint8_t *glyphs)
+{
+    screen *s = screens[i];
+    s->mbox.palUser = 0x80000000 | (uint32_t)glyphs;
+    while (s->mbox.palUser)
+        ;
 }
 
 // quadvgaClear - clear one of the screens
