@@ -14,7 +14,7 @@
 
 static int GetKey(int screen);
 
-extern uint8_t glyphs[];
+extern uint32_t glyphs[];
                                                                                                                                 
 int main(void)
 {
