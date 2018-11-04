@@ -2,3 +2,5 @@
 *.dat
 *.elf
 *.binary
+glyphs.c
+mktiles

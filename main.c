@@ -28,7 +28,7 @@ int main(void)
     CTRA = (0x30 << 23) | (1 << 9) | VOL_PIN;   //counter mode = duty cycle for d/a using rc circuit (B pin is unused)
     FRQA = 0x20000000;                          //Vout = 3.3 * (frqa/2^32) = 3.3 * 0.5 = 1.65V max when frqa = $8000_0000 (can omit this line) 
 
-    //printf("Starting...\n");
+    printf("Starting...\n");
     
     if (quadkeyboardStart() < 0) {
         printf("quadkeyboardStart failed\n");
