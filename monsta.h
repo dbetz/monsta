@@ -118,10 +118,11 @@ struct maze {
     ACTOR actors[NACTORS];      /* actors (player is first) */
     ACTOR *queue;               /* scheduler queue */
     long now;                   /* the current time */
+    int userData;               /* user data */
 };
 
 /* monsta.c */
-void InitMaze(MAZE *maze, int xSize, int ySize, uint8_t *data, int pitch);
+void InitMaze(MAZE *maze, int xSize, int ySize, uint8_t *data, int pitch, int userData);
 void UpdateMaze(MAZE *maze);
 void HandleInput(MAZE *maze, int key);
 void GameIdle(MAZE *maze, unsigned int time);
@@ -131,7 +132,7 @@ int irand(int n);
 void flash(void);
 void beep(void);
 void ShowPiece(MAZE *maze, int x, int y);
-void ShowMessage(char *fmt, ...);
+void ShowMessage(MAZE *maze, char *fmt, ...);
 void ShowStatus(MAZE *maze);
 
 /* actor message types */

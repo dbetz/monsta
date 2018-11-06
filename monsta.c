@@ -61,7 +61,7 @@ static int iswall(int piece);
 static void moverandom(ACTOR *actor);
 
 /* InitMaze - initialize a maze */
-void InitMaze(MAZE *maze, int xSize, int ySize, uint8_t *data, int pitch)
+void InitMaze(MAZE *maze, int xSize, int ySize, uint8_t *data, int pitch, int userData)
 {
 	int centerx, centery, x, y;
 	
@@ -70,6 +70,7 @@ void InitMaze(MAZE *maze, int xSize, int ySize, uint8_t *data, int pitch)
     ySize = ((ySize - 1) & ~1) + 1;
     
     memset(maze, 0, sizeof(MAZE));
+    maze->userData = userData;
     maze->xsize = xSize;
     maze->ysize = ySize;
     maze->data = data;
@@ -84,7 +85,7 @@ void InitMaze(MAZE *maze, int xSize, int ySize, uint8_t *data, int pitch)
 
     putpiece(maze, centerx - 1, centery, PLAYER);
     putpiece(maze, centerx + 1, centery, MONSTER);
-    ShowMessage("Monsta! Press Start");
+    ShowMessage(maze, "Monsta! Press Start");
 
 	UpdateMaze(maze);
 }
@@ -110,7 +111,7 @@ void HandleInput(MAZE *maze, int key)
         break;
     case QUIT:
         if (maze->playing) {
-            ShowMessage("Game aborted!!");
+            ShowMessage(maze, "Game aborted!!");
             maze->playing = FALSE;
         }
         break;
@@ -475,7 +476,7 @@ static void moveplayer(MAZE *maze, int dir)
     case RANDOMIZER:
         moverandom(actor);
         actor->newPiece = FOOTPRINT;
-        ShowMessage("* * Sproing * *");
+        ShowMessage(maze, "* * Sproing * *");
         beep();
         break;
     default:
@@ -504,7 +505,7 @@ static void moveplayer(MAZE *maze, int dir)
             ShowStatus(maze);
             break;
         case GOAL:
-            ShowMessage("* * Victory * *");
+            ShowMessage(maze, "* * Victory * *");
             maze->playing = FALSE;
             break;
         case ACTIVEBOMB:
@@ -520,14 +521,14 @@ static void drop(MAZE *maze)
 {
     ACTOR *actor = &maze->actors[0];
     if (actor->nbombs == 0)
-		ShowMessage("No bombs!");
+		ShowMessage(maze, "No bombs!");
 	else if (actor->newPiece == ACTIVEBOMB)
-		ShowMessage("Bomb here!");
+		ShowMessage(maze, "Bomb here!");
 	else {
 	    --actor->nbombs;
 	    ShowStatus(maze);
 	    actor->newPiece = ACTIVEBOMB;
-	    ShowMessage("Careful . . .");
+	    ShowMessage(maze, "Careful . . .");
 	}
 }
 
@@ -548,13 +549,13 @@ static int pbumpmonster(ACTOR *actor, ACTOR *other)
         moverandom(other);
         if ((other->rate -= 3) < 1)
             other->rate = 1;
-        ShowMessage("Ouch ! !");
+        ShowMessage(actor->maze, "Ouch ! !");
         beep();
         return TRUE;
     }
     else {
         act_show(other);
-        ShowMessage("! ! Schloorp ! !");
+        ShowMessage(actor->maze, "! ! Schloorp ! !");
         return FALSE;
     }
 }
@@ -863,7 +864,7 @@ static int explosion(MAZE *maze, int xcenter, int ycenter)
         }
     }
 
-    ShowMessage("Kabooom ! !");
+    ShowMessage(maze, "Kabooom ! !");
     flash();
 
     /* figure out who got blasted */

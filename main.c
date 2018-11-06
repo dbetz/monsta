@@ -19,8 +19,9 @@ extern uint32_t glyphs[];
 int main(void)
 {
     uint32_t ticksPerTenthSecond, lastTick, now;
-    uint8_t board[WIDTH * (HEIGHT - 1)];
-    MAZE maze;
+    uint8_t board[4][WIDTH * (HEIGHT - 1)];
+    MAZE mazes[4];
+    int i;
     
     DIRA |= 1 << VOL_PIN;
     DIRA |= 1 << SND_PIN;
@@ -28,7 +29,7 @@ int main(void)
     CTRA = (0x30 << 23) | (1 << 9) | VOL_PIN;   //counter mode = duty cycle for d/a using rc circuit (B pin is unused)
     FRQA = 0x20000000;                          //Vout = 3.3 * (frqa/2^32) = 3.3 * 0.5 = 1.65V max when frqa = $8000_0000 (can omit this line) 
 
-    printf("Starting...\n");
+    //printf("Starting...\n");
     
     if (quadkeyboardStart() < 0) {
         printf("quadkeyboardStart failed\n");
@@ -40,10 +41,12 @@ int main(void)
         return 1;
     }
     
-    quadvgaSetUserGlyphs(0, glyphs);
         
-    InitMaze(&maze, WIDTH, HEIGHT - 1, board, WIDTH);
-	UpdateMaze(&maze);
+    for (i = 0; i < 4; ++i) {
+        quadvgaSetUserGlyphs(i, glyphs);
+        InitMaze(&mazes[i], WIDTH, HEIGHT - 1, board[i], WIDTH, i);
+	    UpdateMaze(&mazes[i]);
+	}
 	
     ticksPerTenthSecond = CLKFREQ / 10;
     lastTick = CNT;
@@ -54,14 +57,18 @@ int main(void)
 	
 	    if (CNT - lastTick >= ticksPerTenthSecond) {
 	        lastTick = CNT;
-	        GameIdle(&maze, now);
+	        for (i = 0; i < 4; ++i)
+	            GameIdle(&mazes[i], now);
 	        ++now;
 	    }
 	    
-		if ((key = GetKey(SCREEN)) != NONE)
-			HandleInput(&maze, key);
+		for (i = 0; i < 4; ++i) {
+		    if ((key = GetKey(i)) != NONE)
+			    HandleInput(&mazes[i], key);
+		}
 
-		UpdateMaze(&maze);
+		for (i = 0; i < 4; ++i)
+		    UpdateMaze(&mazes[i]);
     }
 	
     return 0;
@@ -180,24 +187,25 @@ void ShowPiece(MAZE *maze, int x, int y)
         piece = '@';
         break;
     }
-    quadvgaPoke(SCREEN, x, y, piece);
+    quadvgaPoke(maze->userData, x, y, piece);
 }
 
-void ShowMessage(char *fmt, ...)
+void ShowMessage(MAZE *maze, char *fmt, ...)
 {
     char buf[81];
     va_list ap;
     va_start(ap, fmt);
     vsprintf(buf, fmt, ap);
-    quadvgaClearLine(SCREEN, HEIGHT - 1);
-    quadvgaSetXY(SCREEN, 0, HEIGHT - 1);
-    quadvgaStr(SCREEN, buf);
+    quadvgaClearLine(maze->userData, HEIGHT - 1);
+    quadvgaSetXY(maze->userData, 0, HEIGHT - 1);
+    quadvgaStr(maze->userData, buf);
 }
 
 void ShowStatus(MAZE *maze)
 {
     ACTOR *actor = &maze->actors[0];
-    ShowMessage("C:%d/%d  B:%d/%d  R:%d  ",
+    ShowMessage(maze,
+                "C:%d/%d  B:%d/%d  R:%d  ",
                 actor->nclubs, maze->nclubs,
                 actor->nbombs, maze->nbombs,
                 maze->nrandomizers);

@@ -91,7 +91,7 @@ void quadvgaSetPalette(int i, uint32_t *palette)
 }
 
 // quadvgaSetUserGlyphs - set the user glyph table for a screen
-void quadvgaSetUserGlyphs(int i, uint8_t *glyphs)
+void quadvgaSetUserGlyphs(int i, uint32_t *glyphs)
 {
     screen *s = screens[i];
     s->mbox.palUser = 0x80000000 | (uint32_t)glyphs;
