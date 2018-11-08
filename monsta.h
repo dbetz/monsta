@@ -40,23 +40,27 @@
 #define MONSTER                 1       /* first monster */
 #define MONSTER2                2       /* second monster */
 #define MONSTER3                3       /* third monster */
-#define WALL                    4       /* wall */
-#define HIDDENWALL              5       /* hidden wall */
-#define RANDOMIZER              6       /* a randomizer */
-#define HIDDENRANDOMIZER        7       /* a hidden randomizer */
-#define EMPTY                   8       /* nothing */
-#define FOOTPRINT               9       /* the player's footprint */
-#define BOMB                    10      /* an inactive bomb */
-#define ACTIVEBOMB              11      /* an active bomb */
-#define CLUB                    12      /* a club */
-#define GOAL                    13      /* the goal */
-#define DEBRIS                  14      /* debris after an explosion */
+#define MONSTER4                4       /* fourth monster */
+#define WALL                    5       /* wall */
+#define HIDDENWALL              6       /* hidden wall */
+#define RANDOMIZER              7       /* a randomizer */
+#define HIDDENRANDOMIZER        8       /* a hidden randomizer */
+#define EMPTY                   9       /* nothing */
+#define FOOTPRINT               10      /* the player's footprint */
+#define BOMB                    11      /* an inactive bomb */
+#define ACTIVEBOMB              12      /* an active bomb */
+#define CLUB                    13      /* a club */
+#define GOAL                    14      /* the goal */
+#define DEBRIS                  15      /* debris after an explosion */
 
 /* location changed flag */
 #define CHANGED					0x80
 
+/* maximum level */
+#define MAXLEVEL                4
+
 /* number of actors */
-#define NACTORS                 4       /* must be the first entries above */
+#define NACTORS                 (1 + MAXLEVEL)
 
 /* macros to identify actors */
 #define IS_ACTOR(t)             ((t) < NACTORS)
@@ -74,6 +78,8 @@ enum {
     CHEAT1,
     CHEAT2,
     START,
+    INC,
+    DEC,
     DEMO,
     QUIT
 };

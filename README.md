@@ -23,3 +23,5 @@ The following keys control the game:
 - B enters beginner mode the next time a game is started
 - S starts a game when one is not already in progress
 - Q quits the game currently in progress
+- - decrements the level
+- + increments the level

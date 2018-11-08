@@ -118,6 +118,12 @@ static int GetKey(int screen)
     case 'Q':
         key = QUIT;
         break;
+    case '+':
+        key = INC;
+        break;
+    case '-':
+        key = DEC;
+        break;
     }
 	return key;
 }
@@ -205,8 +211,8 @@ void ShowStatus(MAZE *maze)
 {
     ACTOR *actor = &maze->actors[0];
     ShowMessage(maze,
-                "C:%d/%d  B:%d/%d  R:%d  ",
-                actor->nclubs, maze->nclubs,
-                actor->nbombs, maze->nbombs,
-                maze->nrandomizers);
+                "L:%d  C:%d  B:%d       ",
+                maze->level,
+                actor->nclubs, 
+                actor->nbombs);
 }

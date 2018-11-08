@@ -109,6 +109,18 @@ void HandleInput(MAZE *maze, int key)
         if (!maze->playing)
             startgame(maze, maze->now);
         break;
+    case INC:
+        if (maze->level < MAXLEVEL) {
+            ++maze->level;
+            ShowStatus(maze);
+        }
+        break;
+    case DEC:
+        if (maze->level > 1) {
+            --maze->level;
+            ShowStatus(maze);
+        }
+        break;
     case QUIT:
         if (maze->playing) {
             ShowMessage(maze, "Game aborted!!");
@@ -125,7 +137,10 @@ void HandleInput(MAZE *maze, int key)
         ShowStatus(maze);
         break;
     case DEMO:          /* demo mode */
-        maze->level = 0;
+        if (maze->level != 0) {
+            maze->level = 0;
+            ShowStatus(maze);
+        }
         break;
     }
 }
@@ -151,7 +166,7 @@ void GameIdle(MAZE *maze, unsigned int time)
 /* startgame - start the game */
 static int startgame(MAZE *maze, unsigned int time)
 {
-    int i;
+    int i, n;
 
     /* build and populate the maze */
     if (!buildmaze(maze, maze->level))
@@ -165,7 +180,9 @@ static int startgame(MAZE *maze, unsigned int time)
     init_player(maze, &maze->actors[0]);
 
     /* initialize the monsters */
-    for (i = 1; i <= maze->level && i < NACTORS; ++i)
+    if ((n = maze->level) == 0)
+        n = 1;
+    for (i = 1; i <= n && i < NACTORS; ++i)
         init_monster(maze, &maze->actors[i]);
             
     /* update the status line */
@@ -250,40 +267,6 @@ static int buildmaze(MAZE *maze, int level)
     return TRUE;
 }
 
-/* UpdateMaze - update the maze image on the screen */
-void UpdateMaze(MAZE *maze)
-{
-	int x, y;
-	for (y = 0; y < maze->ysize; ++y)
-		for (x = 0; x < maze->xsize; ++x)
-			if (haschanged(maze, x, y)) {
-				clearchanged(maze, x, y);
-				ShowPiece(maze, x, y);
-			}
-}
-
-/* unhiderandomizers - unhide all randomizers */
-static void unhiderandomizers(MAZE *maze)
-{
-    int x, y;
-    for (y = 0; y < maze->ysize; ++y)
-        for (x = 0; x < maze->xsize; ++x)
-            if (getpiece(maze, x, y) == HIDDENRANDOMIZER) {
-                putpiece(maze, x, y, RANDOMIZER);
-                --maze->nrandomizers;
-            }
-}
-
-/* unhidemaze - unhide the whole maze */
-static void unhidemaze(MAZE *maze)
-{
-    int x, y;
-    for (y = 0; y < maze->ysize; ++y)
-        for (x = 0; x < maze->xsize; ++x)
-            if (getpiece(maze, x, y) == HIDDENWALL)
-                putpiece(maze, x, y, WALL);
-}
-
 /* fillmaze - fill the maze with interesting objects */
 static int fillmaze(MAZE *maze)
 {
@@ -325,6 +308,40 @@ static int fillmaze(MAZE *maze)
         putpiece(maze, x, y, BOMB);
     }
     return TRUE;
+}
+
+/* UpdateMaze - update the maze image on the screen */
+void UpdateMaze(MAZE *maze)
+{
+	int x, y;
+	for (y = 0; y < maze->ysize; ++y)
+		for (x = 0; x < maze->xsize; ++x)
+			if (haschanged(maze, x, y)) {
+				clearchanged(maze, x, y);
+				ShowPiece(maze, x, y);
+			}
+}
+
+/* unhiderandomizers - unhide all randomizers */
+static void unhiderandomizers(MAZE *maze)
+{
+    int x, y;
+    for (y = 0; y < maze->ysize; ++y)
+        for (x = 0; x < maze->xsize; ++x)
+            if (getpiece(maze, x, y) == HIDDENRANDOMIZER) {
+                putpiece(maze, x, y, RANDOMIZER);
+                --maze->nrandomizers;
+            }
+}
+
+/* unhidemaze - unhide the whole maze */
+static void unhidemaze(MAZE *maze)
+{
+    int x, y;
+    for (y = 0; y < maze->ysize; ++y)
+        for (x = 0; x < maze->xsize; ++x)
+            if (getpiece(maze, x, y) == HIDDENWALL)
+                putpiece(maze, x, y, WALL);
 }
 
 /* randomloc - compute a random location in the maze */
