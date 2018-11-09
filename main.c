@@ -10,18 +10,20 @@
 #define SND_MASK    (1 << SND_PIN)
 #define BEEP_FREQ   2000
 
-#define SCREEN  0
-
-static int GetKey(int screen);
+#define KEY_LEFT	0xe4
+#define KEY_RIGHT	0xe6
+#define KEY_UP		0xe8
+#define KEY_DOWN	0xe2
 
 extern uint32_t glyphs[];
                                                                                                                                 
+uint8_t board[4][WIDTH * (HEIGHT - 1)];
+MAZE mazes[4];
+
 int main(void)
 {
     uint32_t ticksPerTenthSecond, lastTick, now;
-    uint8_t board[4][WIDTH * (HEIGHT - 1)];
-    MAZE mazes[4];
-    int i;
+    int i, j;
     
     DIRA |= 1 << VOL_PIN;
     DIRA |= 1 << SND_PIN;
@@ -53,7 +55,6 @@ int main(void)
 	now = 0;
 	
 	while (1) {
-	    int key;
 	
 	    if (CNT - lastTick >= ticksPerTenthSecond) {
 	        lastTick = CNT;
@@ -63,8 +64,63 @@ int main(void)
 	    }
 	    
 		for (i = 0; i < 4; ++i) {
-		    if ((key = GetKey(i)) != NONE)
-			    HandleInput(&mazes[i], key);
+		    MAZE *maze = &mazes[i];
+		    int ch;
+		    if ((ch = getKey(i)) != 0) {
+		        switch (ch) {
+                case KEY_LEFT:
+                    MovePlayer(maze, W);
+                    break;
+                case KEY_RIGHT:
+                    MovePlayer(maze, E);
+                    break;
+                case KEY_UP:
+                    MovePlayer(maze, N);
+                    break;
+                case KEY_DOWN:
+                    MovePlayer(maze, S);
+                    break;
+                case 'b':
+                case 'B':
+                    SetLevel(maze, 0);
+                    break;
+                case 's':
+                case 'S':
+                    if (!maze->playing) {
+                        srand(CNT);
+                        BuildMaze(maze);
+                        for (j = 0; j < 4; ++j) {
+                            if (j != 0) {
+                                MAZE *clone = &mazes[j];
+                                CloneMaze(clone, maze);
+                                Start(clone);
+                            }
+                        }
+                        Start(maze);
+                    }
+                    break;
+                case 'c':
+                    Cheat(maze, CHEAT1);
+                    break;
+                case 'C':
+                    Cheat(maze, CHEAT2);
+                    break;
+                case 'd':
+                case 'D':
+                    Drop(maze);
+                    break;
+                case 'q':
+                case 'Q':
+                    Quit(maze);
+                    break;
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                    SetLevel(maze, ch - '0');
+                    break;
+                }
+            }
 		}
 
 		for (i = 0; i < 4; ++i)
@@ -72,60 +128,6 @@ int main(void)
     }
 	
     return 0;
-}
-
-#define KEY_LEFT	0xe4
-#define KEY_RIGHT	0xe6
-#define KEY_UP		0xe8
-#define KEY_DOWN	0xe2
-
-static int GetKey(int screen)
-{
-    int key = NONE;
-    switch (getKey(screen)) {
-    case KEY_LEFT:
-        key = W;
-        break;
-    case KEY_RIGHT:
-        key = E;
-        break;
-    case KEY_UP:
-        key = N;
-        break;
-    case KEY_DOWN:
-        key = S;
-        break;
-    case 'b':
-    case 'B':
-        key = DEMO;
-        break;
-    case 's':
-    case 'S':
-        key = START;
-        srand(CNT);
-        break;
-    case 'c':
-        key = CHEAT1;
-        break;
-    case 'C':
-        key = CHEAT2;
-        break;
-    case 'd':
-    case 'D':
-        key = DROP;
-        break;
-    case 'q':
-    case 'Q':
-        key = QUIT;
-        break;
-    case '+':
-        key = INC;
-        break;
-    case '-':
-        key = DEC;
-        break;
-    }
-	return key;
 }
 
 int irand(int n)

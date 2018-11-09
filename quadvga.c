@@ -11,10 +11,17 @@
 #define ROWS_RAW    ((RES_Y + 32 - 1) / 32)
 #define BCNT_RAW    (COLUMNS * ROWS_RAW)
 
+#ifdef BORDER
 #define XSTART      1
 #define XEND        (COLUMNS - 2)
 #define YSTART      1
 #define YEND        (ROWS - 2)
+#else
+#define XSTART      0
+#define XEND        (COLUMNS - 1)
+#define YSTART      0
+#define YEND        (ROWS - 12)
+#endif
 
 #define FG          ColorPair(BLUE, WHITE)
 

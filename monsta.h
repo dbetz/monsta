@@ -74,14 +74,8 @@ enum {
     S,
     E,
     W,
-    DROP,
     CHEAT1,
-    CHEAT2,
-    START,
-    INC,
-    DEC,
-    DEMO,
-    QUIT
+    CHEAT2
 };
 
 /* types */
@@ -111,14 +105,18 @@ struct actor {
 /* maze structure definition */
 struct maze {
     int level;                  /* game level (zero is demo mode) */
-    int built;                  /* maze has been built */
     int playing;                /* play in progress */
     int xsize, ysize;           /* size */
     int xstart, ystart;         /* starting location */
     int xgoal, ygoal;           /* goal location */
+    struct {
+        int x;
+        int y;
+    } actorlocs[NACTORS];       /* initial player and monster locations */
     int nbombs;                 /* number of bombs */
     int nclubs;                 /* number of clubs */
     int nrandomizers;           /* number of randomizers */
+    int nmonsters;              /* number of monsters */
     uint8_t *data;              /* start of each maze row */
     int pitch;                  /* number of bytes from the start of one row to the next */
     ACTOR actors[NACTORS];      /* actors (player is first) */
@@ -130,8 +128,15 @@ struct maze {
 /* monsta.c */
 void InitMaze(MAZE *maze, int xSize, int ySize, uint8_t *data, int pitch, int userData);
 void UpdateMaze(MAZE *maze);
-void HandleInput(MAZE *maze, int key);
 void GameIdle(MAZE *maze, unsigned int time);
+void MovePlayer(MAZE *maze, int dir);
+void Drop(MAZE *maze);
+void Cheat(MAZE *maze, int cheat);
+void SetLevel(MAZE *maze, int level);
+int BuildMaze(MAZE *maze);
+void CloneMaze(MAZE *clone, MAZE *maze);
+void Start(MAZE *maze);
+void Quit(MAZE *maze);
 
 /* ???stuff.c */
 int irand(int n);

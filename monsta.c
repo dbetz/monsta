@@ -23,7 +23,7 @@ static char dir[24][4] = {
 
 /* forward declarations */
 static int startgame(MAZE *maze, unsigned int time);
-static int buildmaze(MAZE *maze, int level);
+static void finishgame(MAZE *maze, char *msg);
 static int fillmaze(MAZE *maze);
 static void unhiderandomizers(MAZE *maze);
 static void unhidemaze(MAZE *maze);
@@ -41,7 +41,7 @@ static void drop(MAZE *maze);
 static int pencounter(ACTOR *actor, ACTOR *other);
 static int pbumpmonster(ACTOR *actor, ACTOR *other);
 static int pbumpplayer(ACTOR *actor, ACTOR *other);
-static void init_monster(MAZE *maze, ACTOR *actor);
+static void init_monster(MAZE *maze, ACTOR *actor, int x, int y);
 static int mhandler(ACTOR *actor, int msg, void *arg);
 static int minit(ACTOR *actor);
 static int mmove(ACTOR *actor);
@@ -90,59 +90,51 @@ void InitMaze(MAZE *maze, int xSize, int ySize, uint8_t *data, int pitch, int us
 	UpdateMaze(maze);
 }
 
-/* HandleInput - handle a user input */
-void HandleInput(MAZE *maze, int key)
+void MovePlayer(MAZE *maze, int dir)
 {
-    switch (key) {
-    case N:             /* north */
-    case S:             /* south */
-    case E:             /* east */
-    case W:             /* west */
-        if (maze->playing)
-            moveplayer(maze, key);
-        break;
-    case DROP:          /* drop a bomb */
-        if (maze->playing)
-            drop(maze);
-        break;
-    case START:         /* start game */
-        if (!maze->playing)
-            startgame(maze, maze->now);
-        break;
-    case INC:
-        if (maze->level < MAXLEVEL) {
-            ++maze->level;
-            ShowStatus(maze);
+    if (maze->playing)
+        moveplayer(maze, dir);
+}
+
+void Drop(MAZE *maze)
+{
+    if (maze->playing)
+        drop(maze);
+}
+
+void Cheat(MAZE *maze, int cheat)
+{
+    if (maze->playing) {
+        switch (cheat) {
+        case CHEAT1:        /* unhide randomizers */
+            unhiderandomizers(maze);
+            break;
+        case CHEAT2:        /* unhide maze */
+            unhiderandomizers(maze);
+            unhidemaze(maze);
+            break;
         }
-        break;
-    case DEC:
-        if (maze->level > 1) {
-            --maze->level;
-            ShowStatus(maze);
-        }
-        break;
-    case QUIT:
-        if (maze->playing) {
-            ShowMessage(maze, "Game aborted!!");
-            maze->playing = FALSE;
-        }
-        break;
-    case CHEAT1:        /* unhide randomizers */
-        unhiderandomizers(maze);
-        ShowStatus(maze);
-        break;
-    case CHEAT2:        /* unhide maze */
-        unhiderandomizers(maze);
-        unhidemaze(maze);
-        ShowStatus(maze);
-        break;
-    case DEMO:          /* demo mode */
-        if (maze->level != 0) {
-            maze->level = 0;
-            ShowStatus(maze);
-        }
-        break;
     }
+}
+
+void SetLevel(MAZE *maze, int level)
+{
+    if (!maze->playing && maze->level != level) {
+        maze->level = level;
+        ShowStatus(maze);
+    }
+}
+
+void Start(MAZE *maze)
+{
+    if (!maze->playing)
+        startgame(maze, maze->now);
+}
+
+void Quit(MAZE *maze)
+{
+    if (maze->playing)
+        finishgame(maze, "Game aborted!!");
 }
 
 /* GameIdle - handle idle processing */
@@ -155,10 +147,7 @@ void GameIdle(MAZE *maze, unsigned int time)
             if (maze->now < actor->time)
                 break;
             maze->queue = actor->next;
-            if (!(*actor->handler)(actor, MSG_MOVE, NULL)) {
-                maze->playing = FALSE;
-                break;
-            }
+            (*actor->handler)(actor, MSG_MOVE, NULL);
         }
     }
 }
@@ -166,11 +155,7 @@ void GameIdle(MAZE *maze, unsigned int time)
 /* startgame - start the game */
 static int startgame(MAZE *maze, unsigned int time)
 {
-    int i, n;
-
-    /* build and populate the maze */
-    if (!buildmaze(maze, maze->level))
-        return FALSE;
+    int i;
 
     /* initialize */
     maze->now = time;
@@ -180,10 +165,8 @@ static int startgame(MAZE *maze, unsigned int time)
     init_player(maze, &maze->actors[0]);
 
     /* initialize the monsters */
-    if ((n = maze->level) == 0)
-        n = 1;
-    for (i = 1; i <= n && i < NACTORS; ++i)
-        init_monster(maze, &maze->actors[i]);
+    for (i = 1; i <= maze->nmonsters && i < NACTORS; ++i)
+        init_monster(maze, &maze->actors[i], maze->actorlocs[i].x, maze->actorlocs[i].y);
             
     /* update the status line */
     ShowStatus(maze);
@@ -195,14 +178,36 @@ static int startgame(MAZE *maze, unsigned int time)
     return TRUE;
 }
 
-/* buildmaze - build a maze */
-static int buildmaze(MAZE *maze, int level)
+/* finishgame - finish a game */
+static void finishgame(MAZE *maze, char *msg)
+{
+    ShowMessage(maze, msg);
+    unhiderandomizers(maze);
+    unhidemaze(maze);
+    maze->playing = FALSE;
+}
+
+/* CloneMaze - clone a maze */
+void CloneMaze(MAZE *clone, MAZE *maze)
+{
+    uint8_t *data = clone->data;
+    int userData = clone->userData;
+    
+    /* copy the maze structure */
+    *clone = *maze;
+    
+    /* restore the data and user data fields */
+    clone->data = data;
+    clone->userData = userData;
+    
+    /* copy the maze data */
+    memcpy(clone->data, maze->data, maze->ysize * maze->pitch);
+}
+
+/* BuildMaze - build a maze */
+int BuildMaze(MAZE *maze)
 {
     int remaining, plen, len, lmax, x, y, d;
-
-    /* initialize for build */
-    maze->level = level;
-    maze->built = FALSE;
 
     /* initialize the maze */
     for (y = 0; y < maze->ysize; ++y)
@@ -263,7 +268,6 @@ static int buildmaze(MAZE *maze, int level)
         return FALSE;
     
     /* mark maze as built */
-    maze->built = TRUE;
     return TRUE;
 }
 
@@ -307,6 +311,22 @@ static int fillmaze(MAZE *maze)
         } while (getpiece(maze, x, y) != EMPTY);
         putpiece(maze, x, y, BOMB);
     }
+    
+    /* determine the number of monsters based on the level */
+    if ((maze->nmonsters = maze->level) == 0)
+        maze->nmonsters = 1;
+        
+    /* place monsters */
+    for (n = 1; n <= maze->nmonsters; ++n) {
+        do {
+            randomloc(maze, &x, &y);
+        } while (getpiece(maze, x, y) != EMPTY
+              || abs(x - maze->xstart) < 4  /* at least 4 spaces from player */
+              || abs(y - maze->ystart) < 4);
+        maze->actorlocs[n].x = x;
+        maze->actorlocs[n].y = y;
+    }
+
     return TRUE;
 }
 
@@ -522,12 +542,11 @@ static void moveplayer(MAZE *maze, int dir)
             ShowStatus(maze);
             break;
         case GOAL:
-            ShowMessage(maze, "* * Victory * *");
-            maze->playing = FALSE;
+            finishgame(maze, "* * Victory * *");
             break;
         case ACTIVEBOMB:
             explosion(maze, actor->x, actor->y);
-            maze->playing = FALSE;
+            finishgame(maze, "Kabooom ! !");
             break;
         }
     }
@@ -568,13 +587,12 @@ static int pbumpmonster(ACTOR *actor, ACTOR *other)
             other->rate = 1;
         ShowMessage(actor->maze, "Ouch ! !");
         beep();
-        return TRUE;
     }
     else {
         act_show(other);
-        ShowMessage(actor->maze, "! ! Schloorp ! !");
-        return FALSE;
+        finishgame(actor->maze, "! ! Schloorp ! !");
     }
+    return TRUE;
 }
 
 /* pbumpplayer - player bumps player */
@@ -585,17 +603,8 @@ static int pbumpplayer(ACTOR *actor, ACTOR *other)
 }
 
 /* init_monster - initialize a monster */
-static void init_monster(MAZE *maze, ACTOR *actor)
+static void init_monster(MAZE *maze, ACTOR *actor, int x, int y)
 {
-    int x,y;
-    
-    /* place the monster */
-    do {
-        randomloc(maze, &x, &y);
-    } while (getpiece(maze, x, y) != EMPTY
-          || abs(x - maze->xstart) < 4  /* at least 4 spaces from player */
-          || abs(y - maze->ystart) < 4);
-
     /* initialize the monster actor */
     act_init(maze,      /* the maze */
              actor,     /* the actor */
@@ -639,14 +648,13 @@ static int mmove(ACTOR *actor)
 
     /* compute the direction the monster will travel */
     dir = mdirection(actor);
-    sts = TRUE;
 
     /* move the monster */
     act_move(actor, dir);
 
     /* see if we collided with a player */
     if (!checkencounter(actor))
-        return FALSE;
+        return TRUE;
     
     /* check to see what we landed on */
     switch (actor->mazePiece) {
@@ -880,9 +888,6 @@ static int explosion(MAZE *maze, int xcenter, int ycenter)
             }
         }
     }
-
-    ShowMessage(maze, "Kabooom ! !");
-    flash();
 
     /* figure out who got blasted */
     if (pblasted)               /* the player did */

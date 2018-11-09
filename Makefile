@@ -15,6 +15,8 @@ glyphs.o
 
 all:	monsta.binary mktiles
 
+$(OBJS):	monsta.h wordfire.h
+
 monsta.binary:	monsta.elf
 	propeller-load -s $<
     
@@ -39,6 +41,9 @@ mktiles:	mktiles.c
 	cc $(TOOLCFLAGS) -o mktiles mktiles.c
 	
 run:	monsta.binary
+	proploader -s $<
+	
+rund:	monsta.binary
 	proploader -s $< -t
 	
 clean:

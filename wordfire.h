@@ -1,14 +1,21 @@
 #ifndef __WORDFIRE_H__
 #define __WORDFIRE_H__
 
+//#define BORDER
+
 #define RES_X       640
 #define RES_Y       480
 
 #define COLUMNS     (RES_X / 16)
 #define ROWS        (RES_Y / 32)
 
+#ifdef BORDER
 #define WIDTH       (COLUMNS - 2)
 #define HEIGHT      (ROWS - 2)
+#else
+#define WIDTH       COLUMNS
+#define HEIGHT      ROWS
+#endif
 
 #define BLACK       0
 #define RED         1
